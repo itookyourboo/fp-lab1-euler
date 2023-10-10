@@ -81,7 +81,7 @@ print(f"The first triangle number with over {divisor_count} divisors is {result}
 #### Хвостовая рекурсия
 
 ```elixir
-defmodule TriangleNumber do
+defmodule TriangleNumberTailRecursion do
   defp _count_divisors(n, divisor, count) when divisor * divisor > n do
     count
   end
@@ -107,10 +107,6 @@ defmodule TriangleNumber do
     end
   end
 end
-
-divisor_count = 500
-result = TriangleNumber.find_triangle_with_divisors(divisor_count)
-IO.puts("The first triangle number with over #{divisor_count} divisors is #{result}")
 ```
 
 #### Обычная рекурсия
@@ -118,20 +114,20 @@ IO.puts("The first triangle number with over #{divisor_count} divisors is #{resu
 Здесь меняется только функция `count_divisors`. Не придумал, как можно с помощью обычной рекурсии сделать генерацию последовательности треугольных чисел.
 
 ```elixir
-defmodule TriangleNumber do
+defmodule TriangleNumberRecursion do
   defp _count_divisors(n, divisor) when divisor * divisor > n do
     1
   end
   defp _count_divisors(n, divisor) when rem(n, divisor) != 0 do
     _count_divisors(n, divisor + 1)
   end
-  defp _count_divisors(n, divisor) when div(n, divisor) == divisor do
+  defp _count_divisors(n, divisor) when divisor * divisor == n do
     1 + _count_divisors(n, divisor + 1)
   end
   defp _count_divisors(n, divisor) do
     2 + _count_divisors(n, divisor + 1)
   end
-  defp count_divisors(n) do
+  def count_divisors(n) do
     _count_divisors(n, 1)
   end
 
@@ -143,10 +139,6 @@ defmodule TriangleNumber do
     end
   end
 end
-
-divisor_count = 500
-result = TriangleNumber.find_triangle_with_divisors(divisor_count)
-IO.puts("The first triangle number with over #{divisor_count} divisors is #{result}")
 ```
 
 #### Модульная реализация
@@ -158,7 +150,7 @@ IO.puts("The first triangle number with over #{divisor_count} divisors is #{resu
 3. Получение n-ного треугольного числа с помощью `Enum.reduce`
 
 ```elixir
-defmodule TriangleNumber do
+defmodule TriangleNumberGFR do
   defp divisors(1), do: [1]
   defp divisors(n), do: [1, n | divisors(2, n, n)]
   defp divisors(k, _n, q) when k * k > q, do: []
@@ -190,16 +182,12 @@ defmodule TriangleNumber do
     end
   end
 end
-
-divisor_count = 500
-result = TriangleNumber.find_triangle_with_divisors(divisor_count)
-IO.puts("The first triangle number with over #{divisor_count} divisors is #{result}")
 ```
 
 #### Генерация последовательности при помощи отображения / работа с бесконечными списками
 
 ```elixir
-defmodule TriangleNumber do
+defmodule TriangleNumberMap do
   defp divisors(1), do: [1]
   defp divisors(n), do: [1, n | divisors(2, n, n)]
   defp divisors(k, _n, q) when k * k > q, do: []
@@ -234,10 +222,54 @@ defmodule TriangleNumber do
     |> elem(0)
   end
 end
+```
 
-divisor_count = 500
-result = TriangleNumber.find_triangle_with_divisors(divisor_count)
-IO.puts("The first triangle number with over #{divisor_count} divisors is #{result}")
+### Тестирование
+
+Тестирование проводилось с помощью модуля ExUnit.
+
+```elixir
+defmodule TestTriangleNumberTailRecursion do
+  use ExUnit.Case
+
+  @module TriangleNumberTailRecursion
+
+  test "5 divisors" do
+    {arg, expected} = {5, 28}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+
+  test "10 divisors" do
+    {arg, expected} = {10, 120}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+
+  test "50 divisors" do
+    {arg, expected} = {50, 25_200}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+
+  test "100 divisors" do
+    {arg, expected} = {100, 73_920}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+
+  test "200 divisors" do
+    {arg, expected} = {200, 2_031_120}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+
+  test "500 divisors" do
+    {arg, expected} = {500, 76_576_500}
+    real = @module.find_triangle_with_divisors(arg)
+    assert real == expected
+  end
+end
 ```
 
 ## 19. Counting Sundays
@@ -295,158 +327,258 @@ print(f"Number of Sundays on the first of the month during the twentieth century
 #### Хвостовая рекурсия
 
 ```elixir
-defmodule SundaysOnFirst do
+defmodule SundaysOnFirstTailRecursion do
   defp is_leap_year(year) when rem(year, 400) == 0, do: true
   defp is_leap_year(year) when rem(year, 100) == 0, do: false
   defp is_leap_year(year) when rem(year, 4) == 0, do: true
   defp is_leap_year(_), do: false
 
-  defp days_in_month(2, year) when is_leap_year(year), do: 29
-  defp days_in_month(2, _), do: 28
+  defp days_in_month(2, year) do
+    if is_leap_year(year), do: 29, else: 28
+  end
   defp days_in_month(month, _)
       when month in [4, 6, 9, 11], do: 30
   defp days_in_month(_, _), do: 31
 
-  defp count_sundays_on_first_of_month(start_year, end_year, day, count) when start_year > end_year, do: count
-  defp count_sundays_on_first_of_month(start_year, end_year, day, count) do
-    {year, month, _} = {start_year, 1, day}
-    next_day = (day + days_in_month(month, year)) rem 7
+  defp count_sundays_on_first_of_month(start_year, end_year, _month, _day, count) when start_year > end_year, do: count
+  defp count_sundays_on_first_of_month(start_year, end_year, month, day, count) do
+    year = start_year
+    next_day = rem(day + days_in_month(month, year), 7)
     next_year = if month == 12, do: year + 1, else: year
+    next_month = if month == 12, do: 1, else: month + 1
 
     count_sundays_on_first_of_month(
       next_year,
       end_year,
+      next_month,
       next_day,
-      count + if day == 0, do: 1, else: 0
+      count + (if day == 0, do: 1, else: 0)
     )
   end
 
-  def count_sundays_on_first_of_month(start_year, end_year) do
-    count_sundays_on_first_of_month(start_year, end_year, 2, 0)
-  end
-
-  def main do
-    result = count_sundays_on_first_of_month(1901, 2000)
-    IO.puts("Number of Sundays on the first of the month during the twentieth century: #{result}")
+  def count_sundays_on_first_of_month(start_year, end_year, jan1) do
+    count_sundays_on_first_of_month(start_year, end_year, 1, jan1, 0)
   end
 end
-
-SundaysOnFirst.main()
 ```
 
 #### Модульная реализация
 
 ```elixir
-defmodule SundaysOnFirst do
+defmodule SundaysOnFirstGFR do
   defp is_leap_year(year) when rem(year, 400) == 0, do: true
   defp is_leap_year(year) when rem(year, 100) == 0, do: false
   defp is_leap_year(year) when rem(year, 4) == 0, do: true
   defp is_leap_year(_), do: false
 
-  defp days_in_month(2, year) when is_leap_year(year), do: 29
-  defp days_in_month(2, _), do: 28
+  defp days_in_month(2, year) do
+    if is_leap_year(year), do: 29, else: 28
+  end
   defp days_in_month(month, _)
       when month in [4, 6, 9, 11], do: 30
   defp days_in_month(_, _), do: 31
 
-  defp first_sundays(year, day) do
-    for month <- 1..12, day == 0, do: 1
-    day = (day + days_in_month(month, year)) rem 7
+  defp iter_weekday(w), do: rem(w + 1, 7)
+  defp iter_day(d, m, y) do
+    if d == days_in_month(m, y), do: 1, else: d + 1
   end
 
-  defp count_sundays_on_first_of_month(start_year, end_year) do
-    1..(end_year - start_year + 1)
-    |> Enum.reduce(0, fn year, acc ->
-      first_sundays(year, acc)
+  defp iter_month(d, m, y) do
+    if iter_day(d, m, y) == 1 do
+      if m == 12, do: 1, else: m + 1
+    else
+      m
+    end
+  end
+
+  defp iter_year(d, m, y) do
+    if m == 12 && iter_day(d, m, y) == 1, do: y + 1, else: y
+  end
+
+  defp gen_days(start_year, month, day, weekday) do
+    Stream.iterate({start_year, month, day, weekday}, fn {y, m, d, w} ->
+      {iter_year(d, m, y), iter_month(d, m, y), iter_day(d, m, y), iter_weekday(w)}
     end)
   end
 
-  def main do
-    result = count_sundays_on_first_of_month(1901, 2000)
-    IO.puts("Number of Sundays on the first of the month during the twentieth century: #{result}")
+  defp filter_years(seq, end_year) do
+    Enum.take_while(
+      seq,
+      fn {year, _, _, _} -> year <= end_year
+    end)
+  end
+
+  defp filter_days(seq) do
+    Enum.filter(seq,
+      fn {_, _, day, weekday} -> day == 1 && weekday == 0
+    end)
+  end
+
+  defp count(seq) do
+    Enum.count(seq)
+  end
+
+  def count_sundays_on_first_of_month(start_year, end_year, jan1) do
+    gen_days(start_year, 1, 1, jan1)
+    |> filter_years(end_year)
+    |> filter_days
+    |> count
   end
 end
-
-SundaysOnFirst.main()
-```
-
-#### Генерация последовательности при помощи отображения
-
-```elixir
-defmodule SundaysOnFirst do
-  defp is_leap_year(year) when rem(year, 400) == 0, do: true
-  defp is_leap_year(year) when rem(year, 100) == 0, do: false
-  defp is_leap_year(year) when rem(year, 4) == 0, do: true
-  defp is_leap_year(_), do: false
-
-  defp days_in_month(2, year) when is_leap_year(year), do: 29
-  defp days_in_month(2, _), do: 28
-  defp days_in_month(month, _)
-      when month in [4, 6, 9, 11], do: 30
-  defp days_in_month(_, _), do: 31
-
-  defp first_sundays(year, day) do
-    1..12
-    |> Enum.map(&if day == 0, do: 1, else: 0)
-    |> Enum.reduce(day, fn d, acc ->
-      day = (acc + days_in_month(1, year)) rem 7
-      d + if day == 0, do: 1, else: 0
-    end)
-  end
-
-  defp count_sundays_on_first_of_month(start_year, end_year) do
-    1..(end_year - start_year + 1)
-    |> Enum.map(fn year ->
-      first_sundays(year, 2)  # 1 Jan 1901 was a Tuesday (0=Sunday, 1=Monday, 2=Tuesday, ...)
-    end)
-    |> Enum.sum()
-  end
-
-  def main do
-    result = count_sundays_on_first_of_month(1901, 2000)
-    IO.puts("Number of Sundays on the first of the month during the twentieth century: #{result}")
-  end
-end
-
-SundaysOnFirst.main()
 ```
 
 #### Работа с бесконечными списками
 
 ```elixir
-defmodule SundaysOnFirst do
+defmodule SundaysOnFirstStreams do
   defp is_leap_year(year) when rem(year, 400) == 0, do: true
   defp is_leap_year(year) when rem(year, 100) == 0, do: false
   defp is_leap_year(year) when rem(year, 4) == 0, do: true
   defp is_leap_year(_), do: false
 
-  defp days_in_month(2, year) when is_leap_year(year), do: 29
-  defp days_in_month(2, _), do: 28
+  defp days_in_month(2, year) do
+    if is_leap_year(year), do: 29, else: 28
+  end
   defp days_in_month(month, _)
       when month in [4, 6, 9, 11], do: 30
   defp days_in_month(_, _), do: 31
 
-  def count_sundays_on_first_of_month(start_year, end_year) do
-    Stream.iterate({1901, 1, 2}, fn {year, month, day} ->
+  def count_sundays_on_first_of_month(start_year, end_year, jan1) do
+    Stream.iterate({start_year, 1, jan1}, fn {year, month, day} ->
+      next_day = rem(day + days_in_month(month, year), 7)
       next_month = if month == 12, do: 1, else: month + 1
       next_year = if month == 12, do: year + 1, else: year
-      {next_year, next_month, (day + days_in_month(month, year)) rem 7}
+      {next_year, next_month, next_day}
     end)
-    |> Stream.drop(start_year - 1901)
-    |> Stream.take(end_year - start_year + 1)
+    |> Stream.take_while(fn {year, _, _} -> year <= end_year end)
     |> Stream.filter(fn {_, _, day} -> day == 0 end)
     |> Enum.count()
   end
+end
+```
 
-  def main do
-    result = count_sundays_on_first_of_month(1901, 2000)
-    IO.puts("Number of Sundays on the first of the month during the twentieth century: #{result}")
+### Тестирование
+
+Тестирование проводилось с помощью модуля ExUnit.
+
+```elixir
+defmodule TestSundaysOnFirstTailRecursion do
+  use ExUnit.Case
+
+  @module SundaysOnFirstTailRecursion
+
+  test "From 1901 to 2000" do
+    {from, to, jan1, expected} = {1901, 2000, 2, 171}
+    real = @module.count_sundays_on_first_of_month(from, to, jan1)
+    assert real == expected
   end
 end
+```
 
-SundaysOnFirst.main()
+## Дополнительное задание (Dialyzer)
+
+Dialyzer - это инструмент статической анализа кода для языка программирования Elixir.
+
+### Установка
+
+1. Добавляем зависимость в `mix.exs`:
+    ```elixir
+    {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
+    ```
+2. Устанавливаем `erlang-dialyzer`:
+    ```shell
+    sudo apt install erlang-dialyzer
+    ```
+
+### Использование
+
+1. Подтягиваем зависимость:
+    ```shell
+   mix do deps.get, deps.compile
+    ```
+2. Запускаем:
+    ```
+    mix dialyzer
+    ```
+
+### Пример работы
+
+```elixir
+  @spec count_divisors(integer()) :: integer()
+  def count_divisors(n) do
+    _count_divisors(n, 1, 0)
+  end
+
+  @spec find_triangle_with_divisors(integer(), integer(), integer()) :: integer()
+  def find_triangle_with_divisors(divisor_count, n \\ 1, sum \\ 0) do
+    if count_divisors(sum) > divisor_count do
+      sum
+    else
+      find_triangle_with_divisors(divisor_count, n + 1, sum + n)
+    end
+  end
+```
+
+```shell
+Total errors: 0, Skipped: 0, Unnecessary Skips: 0
+done in 0m0.76s
+done (passed successfully)
+```
+
+А теперь поменяем в `count_divisors` тип аргумента с `integer` на `String.t`:
+
+```elixir
+  @spec count_divisors(String.t()) :: integer()
+  def count_divisors(n) do
+    _count_divisors(n, 1, 0)
+  end
+
+  @spec find_triangle_with_divisors(integer(), integer(), integer()) :: integer()
+  def find_triangle_with_divisors(divisor_count, n \\ 1, sum \\ 0) do
+    if count_divisors(sum) > divisor_count do
+      sum
+    else
+      find_triangle_with_divisors(divisor_count, n + 1, sum + n)
+    end
+  end
+```
+
+```shell
+lib/task12/tail_recursion.ex:20:invalid_contract
+The @spec for the function does not match the success typing of the function.
+
+Function:
+TriangleNumberTailRecursion.find_triangle_with_divisors/3
+
+Success typing:
+@spec find_triangle_with_divisors(_, _, binary()) :: binary()
+
+________________________________________________________________________________
+lib/task12/tail_recursion.ex:21:no_return
+Function find_triangle_with_divisors/1 has no local return.
+________________________________________________________________________________
+lib/task12/tail_recursion.ex:21:no_return
+Function find_triangle_with_divisors/2 has no local return.
+________________________________________________________________________________
+lib/task12/tail_recursion.ex:25:call
+The function call will not succeed.
+
+:erlang.+(_sum :: binary(), _n :: number())
+
+will never return since the 1st arguments differ
+from the success typing arguments:
+
+(number(), number())
+
+________________________________________________________________________________
+done (warnings were emitted)
+Halting VM with exit status 2
 ```
 
 ## Выводы
 
 В ходе выполнения я познакомился с синтаксисом Elixir. Для меня функциональное программирование в новинку, поэтому лабораторная заставила поломать мозги. От этого было интересно.
+
+Функциональное программирование стимулирует к написанию чистого кода. Маленькие функции очень просто дебажить.
+
+Еще понравилась концепция подачи выхода одной функции на вход другой. Так код становится довольно лаконичным.

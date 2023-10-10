@@ -1,4 +1,4 @@
-defmodule TriangleNumber_Map do
+defmodule TriangleNumberMap do
   defp divisors(1), do: [1]
   defp divisors(n), do: [1, n | divisors(2, n, n)]
   defp divisors(k, _n, q) when k * k > q, do: []

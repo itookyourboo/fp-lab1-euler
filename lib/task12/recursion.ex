@@ -1,4 +1,4 @@
-defmodule TriangleNumber_Recursion do
+defmodule TriangleNumberRecursion do
   defp _count_divisors(n, divisor) when divisor * divisor > n do
     1
   end

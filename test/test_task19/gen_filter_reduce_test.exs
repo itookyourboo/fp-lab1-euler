@@ -1,7 +1,7 @@
-defmodule TestSundaysOnFirstTailRecursion do
+defmodule TestSundaysOnFirstGFR do
   use ExUnit.Case
 
-  @module SundaysOnFirstTailRecursion
+  @module SundaysOnFirstGFR
 
   test "From 1901 to 2000" do
     {from, to, jan1, expected} = {1901, 2000, 2, 171}

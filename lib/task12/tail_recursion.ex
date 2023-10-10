@@ -1,4 +1,4 @@
-defmodule TriangleNumber_TailRecursion do
+defmodule TriangleNumberTailRecursion do
   defp _count_divisors(n, divisor, count) when divisor * divisor > n do
     count
   end
