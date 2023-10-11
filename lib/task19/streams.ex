@@ -7,8 +7,11 @@ defmodule SundaysOnFirstStreams do
   defp days_in_month(2, year) do
     if is_leap_year(year), do: 29, else: 28
   end
+
   defp days_in_month(month, _)
-      when month in [4, 6, 9, 11], do: 30
+       when month in [4, 6, 9, 11],
+       do: 30
+
   defp days_in_month(_, _), do: 31
 
   def count_sundays_on_first_of_month(start_year, end_year, jan1) do

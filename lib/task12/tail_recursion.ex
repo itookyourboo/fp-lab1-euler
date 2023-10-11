@@ -2,12 +2,15 @@ defmodule TriangleNumberTailRecursion do
   defp _count_divisors(n, divisor, count) when divisor * divisor > n do
     count
   end
+
   defp _count_divisors(n, divisor, count) when rem(n, divisor) != 0 do
     _count_divisors(n, divisor + 1, count)
   end
+
   defp _count_divisors(n, divisor, count) when div(n, divisor) == divisor do
     _count_divisors(n, divisor + 1, count + 1)
   end
+
   defp _count_divisors(n, divisor, count) do
     _count_divisors(n, divisor + 1, count + 2)
   end

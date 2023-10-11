@@ -7,11 +7,15 @@ defmodule SundaysOnFirstGFR do
   defp days_in_month(2, year) do
     if is_leap_year(year), do: 29, else: 28
   end
+
   defp days_in_month(month, _)
-      when month in [4, 6, 9, 11], do: 30
+       when month in [4, 6, 9, 11],
+       do: 30
+
   defp days_in_month(_, _), do: 31
 
   defp iter_weekday(w), do: rem(w + 1, 7)
+
   defp iter_day(d, m, y) do
     if d == days_in_month(m, y), do: 1, else: d + 1
   end
@@ -37,14 +41,15 @@ defmodule SundaysOnFirstGFR do
   defp filter_years(seq, end_year) do
     Enum.take_while(
       seq,
-      fn {year, _, _, _} -> year <= end_year
-    end)
+      fn {year, _, _, _} -> year <= end_year end
+    )
   end
 
   defp filter_days(seq) do
-    Enum.filter(seq,
-      fn {_, _, day, weekday} -> day == 1 && weekday == 0
-    end)
+    Enum.filter(
+      seq,
+      fn {_, _, day, weekday} -> day == 1 && weekday == 0 end
+    )
   end
 
   defp count(seq) do

@@ -2,12 +2,15 @@ defmodule TriangleNumberMap do
   defp divisors(1), do: [1]
   defp divisors(n), do: [1, n | divisors(2, n, n)]
   defp divisors(k, _n, q) when k * k > q, do: []
+
   defp divisors(k, n, q) when rem(n, k) != 0 do
     divisors(k + 1, n, q)
   end
+
   defp divisors(k, n, q) when k * k == n do
     [k | divisors(k + 1, n, q)]
   end
+
   defp divisors(k, n, q) do
     [k, div(n, k) | divisors(k + 1, n, q)]
   end
@@ -15,7 +18,7 @@ defmodule TriangleNumberMap do
   defp count_divisors(n) do
     n
     |> divisors
-    |> Enum.count
+    |> Enum.count()
   end
 
   defp triangles do
